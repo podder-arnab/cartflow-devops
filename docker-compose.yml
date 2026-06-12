@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: cartflow-redis
+    networks:
+      - cartflow-net
+    restart: unless-stopped
+
+  flask-api:
+    build: ./backend
+    container_name: cartflow-backend
+    environment:
+      - REDIS_HOST=redis
+      - JWT_SECRET=cartflow-jwt-secret-2024
+    networks:
+      - cartflow-net
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: cartflow-frontend
+    networks:
+      - cartflow-net
+    depends_on:
+      - flask-api
+    restart: unless-stopped
+
+  nginx:
+    build: ./nginx
+    container_name: cartflow-nginx
+    ports:
+      - "80:80"
+    networks:
+      - cartflow-net
+    depends_on:
+      - flask-api
+      - frontend
+    restart: unless-stopped
+
+networks:
+  cartflow-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
