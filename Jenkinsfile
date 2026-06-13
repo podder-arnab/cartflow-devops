@@ -20,7 +20,8 @@ pipeline {
             steps {
                 echo 'Deploying CartFlow...'
                 sh '''
-                    docker-compose down || true
+                    docker-compose down --remove-orphans || true
+                    docker network prune -f || true
                     docker-compose up -d
                 '''
             }
@@ -30,7 +31,7 @@ pipeline {
             steps {
                 echo 'Running health check...'
                 sh '''
-                    sleep 15
+                    sleep 20
                     curl -f http://localhost/api/health || exit 1
                 '''
             }
