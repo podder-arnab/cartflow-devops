@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        HOST_IP = '172.31.25.206'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -32,7 +36,7 @@ pipeline {
                 echo 'Running health check...'
                 sh '''
                     sleep 20
-                    curl -f http://localhost/api/health || exit 1
+                    curl -f http://${HOST_IP}/api/health || exit 1
                 '''
             }
         }
