@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        APP_DIR = '/home/ubuntu/cartflow'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -17,7 +13,6 @@ pipeline {
             steps {
                 echo 'Verifying project files...'
                 sh 'ls -la'
-                sh 'cat docker-compose.yml'
             }
         }
 
@@ -25,8 +20,7 @@ pipeline {
             steps {
                 echo 'Deploying CartFlow...'
                 sh '''
-                    cd ${APP_DIR}
-                    docker-compose down
+                    docker-compose down || true
                     docker-compose up -d
                 '''
             }
