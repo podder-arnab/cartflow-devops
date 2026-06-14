@@ -15,8 +15,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    docker rm -f cartflow-nginx cartflow-frontend cartflow-backend cartflow-redis || true
+                    docker rm -f cartflow-nginx cartflow-frontend cartflow-backend cartflow-redis cartflow-prometheus cartflow-grafana cartflow-node-exporter || true
                     docker network rm cartflow_cartflow-net cartflow-pipeline_cartflow-net || true
+                    docker network prune -f || true
                     docker-compose up -d
                 '''
             }
@@ -33,7 +34,7 @@ pipeline {
     }
 
     post {
-        success { echo 'Deployed successfully!' }
+        success { echo 'CartFlow deployed successfully!' }
         failure { echo 'Deployment failed!' }
     }
 }
