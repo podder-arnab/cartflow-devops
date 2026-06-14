@@ -41,9 +41,51 @@ services:
       - frontend
     restart: unless-stopped
 
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: cartflow-node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - cartflow-net
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cartflow-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alert-rules.yml:/etc/prometheus/alert-rules.yml
+      - prometheus-data:/prometheus
+    networks:
+      - cartflow-net
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cartflow-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - cartflow-net
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
 networks:
   cartflow-net:
     driver: bridge
     ipam:
       config:
         - subnet: 172.20.0.0/24
+
+volumes:
+  prometheus-data:
+  grafana-data:
